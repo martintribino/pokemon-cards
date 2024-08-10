@@ -48,7 +48,12 @@ const Login: React.FC = () => {
           <Typography component="h1" variant="h5">
             Log in
           </Typography>
-          {error && <Typography color="error">{error}</Typography>}
+          {
+            error &&
+            <Alert severity="error">
+              {error}
+            </Alert>
+          }
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               value={email}

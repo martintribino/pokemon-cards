@@ -34,7 +34,7 @@ const Hero: React.FC = () => {
               fontSize: 'clamp(3.5rem, 10vw, 4rem)',
             }}
           >
-            We’re &nbsp;
+            We’re
             <Typography
               component="span"
               variant="h1"
@@ -44,8 +44,18 @@ const Hero: React.FC = () => {
                   theme.palette.mode === 'light' ? 'primary.main' : 'primary.light',
               }}
             >
-              CookUnity,
+              &nbsp;CookUnity,
             </Typography>
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignSelf: 'center',
+              textAlign: 'center',
+            }}
+          >
             a chef collective
           </Typography>
           <Typography

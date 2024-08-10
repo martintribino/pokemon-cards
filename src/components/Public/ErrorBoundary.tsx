@@ -1,4 +1,5 @@
 import { Component, ReactNode } from "react";
+import React from "react";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
