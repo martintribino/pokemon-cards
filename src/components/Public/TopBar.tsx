@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const TopBar: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -82,7 +82,7 @@ const TopBar: React.FC = () => {
                     color="primary"
                     variant="contained"
                     component="a"
-                    onClick={() => navigate('logout')}
+                    onClick={() => logout()}
                     target="_blank"
                     sx={{ width: '100%' }}
                   >
