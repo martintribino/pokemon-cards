@@ -60,8 +60,8 @@ const CardList: React.FC = () => {
                   <Card>
                     <CardMedia
                       sx={{ height: 120 }}
-                      image="/static/images/cards/contemplative-reptile.jpg"
-                      title="green iguana"
+                      image={card.src}
+                      title={card.name}
                     />
                     <CardContent>
                       <Typography variant="h5">

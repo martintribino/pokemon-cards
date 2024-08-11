@@ -55,7 +55,7 @@ const TopBar: React.FC = () => {
               px: 0,
             }}
           >
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Box sx={{ paddingLeft: 5, paddingRight: 5, display: { xs: 'none', md: 'flex' } }}>
               <img alt="CookUnity" src="https://cu-landings-web-assets.imgix.net/assets/icons/cu-logo.svg"></img>
             </Box>
             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -63,7 +63,7 @@ const TopBar: React.FC = () => {
                 Dashboard
               </MenuItem>
               <MenuItem onClick={() => navigate('cards')} sx={{ py: '6px', px: '12px' }}>
-                Card Details
+                Go to Cards
               </MenuItem>
             </Box>
           </Box>

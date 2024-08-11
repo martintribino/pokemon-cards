@@ -18,7 +18,7 @@ interface AuthContextType {
     page: number,
     limit: number
   ) => Promise<PokemonCardsResponse>;
-  initiateBattle: (cardId: number, opponentId: number) => Promise<string>;
+  initiateBattle: (cardId: number, opponentId: number) => Promise<BattleCardsResponse>;
   isAuthenticated: boolean;
   error: string | null;
 }
@@ -28,11 +28,17 @@ export interface PokemonCardsResponse {
   total: number;
 }
 
+export interface BattleCardsResponse {
+  message: string;
+  defeat: boolean;
+}
+
 export interface PokemonCard {
   id: number;
   name: string;
   type: string;
   hp: number;
+  src: string;
   abilities: string[];
   weaknesses: string[];
   resistances: string[];
@@ -49,6 +55,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     setError(null);
   }, [location]);
+
+  const api = axios.create();
+  
+  // Add an interceptor
+  api.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response &&
+        (error.response.status === 401 || error.response.status === 403)) {
+        logout();
+      }
+      return Promise.reject(error);
+    }
+  );
 
   const login = async (email: string, password: string) => {
     try {
@@ -87,7 +107,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     limit: number = 10
   ): Promise<PokemonCardsResponse> => {
     try {
-      const response = await axios.get<PokemonCardsResponse>(CARD_URL, {
+      const response = await api.get<PokemonCardsResponse>(CARD_URL, {
         params: { type, name, page, limit },
         headers: {"Authorization" : `Bearer ${token}`}
       });
@@ -102,7 +122,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const getCardById = async (cardId: number): Promise<PokemonCard | null> => {
     try {
-      const response = await axios.get(`${CARD_URL}/${cardId}`, {
+      const response = await api.get(`${CARD_URL}/${cardId}`, {
         headers: {"Authorization" : `Bearer ${token}`}
       });
       setError(null);
@@ -114,15 +134,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
   
-  const initiateBattle = async (cardId: number, opponentId: number): Promise<string> => {
+  const initiateBattle = async (cardId: number, opponentId: number): Promise<BattleCardsResponse> => {
     try {
-      const response = await axios.get(`${CARD_URL}/${cardId}/battle/${opponentId}`);
+      const response = await api.get(`${CARD_URL}/${cardId}/battle/${opponentId}`, {
+        headers: {"Authorization" : `Bearer ${token}`}
+      });
       setError(null);
       return response.data;
     } catch (err) {
       console.error(err)
-      setError(`Card ${cardId} or oponent ${opponentId} not exist.`);
-      return '';
+      setError(`Card not exist.`);
+      return {message: '', defeat: false};
     }
   };
 

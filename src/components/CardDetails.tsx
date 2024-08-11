@@ -1,14 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, Typography, Button, ThemeProvider, Container, CssBaseline, Box, createTheme } from '@mui/material';
-import { PokemonCard, useAuth } from '../context/AuthContext';
+import { useParams } from 'react-router-dom';
+import {
+  Alert,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  ThemeProvider,
+  Container,
+  CssBaseline,
+  Box,
+  createTheme,
+  CardMedia,
+  CardActions,
+  Select,
+  MenuItem
+} from '@mui/material';
+import { BattleCardsResponse, PokemonCard, useAuth } from '../context/AuthContext';
+import SendIcon from '@mui/icons-material/Send';
 
 const CardDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [card, setCard] = useState<PokemonCard | null>(null);
-  const [battle, setBattle] = useState<string>('');
-  const navigate = useNavigate();
-  const { getCardById, initiateBattle } = useAuth();
+  const [cards, setCards] = useState<PokemonCard[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [oponent, setOponent] = useState<string | null>(null);
+  const [battle, setBattle] = useState<BattleCardsResponse | null>(null);
+  const { getCardById, initiateBattle, getAllCards } = useAuth();
 
   const defaultTheme = createTheme();
 
@@ -20,54 +38,96 @@ const CardDetail: React.FC = () => {
 
     fetchCard();
   }, [id]);
+  useEffect(() => {
+    const fetchCards = async () => {
+      const { data } = await getAllCards('', '', 1, 10);
+      const oponents = data.filter((c) => (c.id !== Number(id)));
+      setCards(oponents);
+      setTotal(oponents.length);
+      if (oponents[0]) {
+        setOponent(oponents[0].id.toString())
+      }
+    };
+    fetchCards();
+  }, []);
 
-  const handleBattle = async (opponentId: number) => {
-    const result = await initiateBattle(Number(id), opponentId);
+  const handleBattle = async (opponentId: string) => {
+    const result = await initiateBattle(Number(id), Number(opponentId));
     setBattle(result);
   };
 
   return (
     card ? (
       <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="md">
-          <CssBaseline />
-          <Box
+        <Container component="main" maxWidth="md"
             sx={{
               marginTop: 15,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-            }}
+            }}>
+          <CssBaseline />
+          <Card
+              sx={{ width: 350 }}
           >
-            <Card>
-              <CardContent>
-                <Typography variant="h4">{card.name}</Typography>
-                <Typography>Type: {card.type}</Typography>
-                <Typography>HP: {card.hp}</Typography>
-                <Typography>Abilities: {card.abilities.join(', ')}</Typography>
-                <Typography>Weaknesses: {card.weaknesses.join(', ')}</Typography>
-                <Typography>Resistances: {card.resistances.join(', ')}</Typography>
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => navigate('/cards')}
-                  style={{ marginTop: '20px' }}
+            <CardMedia
+              sx={{ height: 180 }}
+              image={card.src}
+              title={card.name}
+            />
+            <CardContent>
+              <Typography color="primary" variant="h3">{card.name}</Typography>
+                    {
+                      battle && (battle.defeat ?
+                        (<Alert severity="success">{battle.message}</Alert>) :
+                        (<Alert severity="error">{battle.message}</Alert>))
+                    }
+              <Typography>Type: {card.type}</Typography>
+              <Typography>HP: {card.hp}</Typography>
+              <Typography color="primary" variant="h6">Abilities: {card.abilities.join(', ')}</Typography>
+              <Typography color="error" variant="h6">Weaknesses: {card.weaknesses.join(', ')}</Typography>
+              <Typography color="primary" variant="h6">Resistances: {card.resistances.join(', ')}</Typography>
+            </CardContent>
+            {
+              total > 0 && (
+                <CardActions
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center'
+                    }}
                 >
-                  Back to All Cards
-                </Button>
-
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleBattle(2)} // Replace '2' with dynamic opponent ID
-                  style={{ marginTop: '20px', marginLeft: '10px' }}
-                >
-                  Battle!
-                </Button>
-              </CardContent>
-            </Card>
-          </Box>
+                  <Select
+                    sx={{ height: 40 }}
+                    id="oponent-select"
+                    value={oponent}
+                    onChange={(e) => setOponent(e.target.value)}
+                  >
+                    {
+                      cards.map((c) => (
+                        <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
+                      ))
+                    }
+                  </Select>
+                  {
+                    oponent && (
+                      <Button
+                        sx={{ height: 40 }}
+                        variant="outlined"
+                        color="primary"
+                        endIcon={<SendIcon />}
+                        onClick={() => handleBattle(oponent)}
+                        style={{ marginLeft: '10px' }}
+                      >
+                        Battle
+                      </Button>
+                    )
+                  }
+                </CardActions>
+              )
+            }
+          </Card>
         </Container>
       </ThemeProvider>
     ) : (
@@ -77,3 +137,4 @@ const CardDetail: React.FC = () => {
 };
 
 export default CardDetail;
+
