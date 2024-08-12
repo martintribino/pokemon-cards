@@ -56,15 +56,15 @@ const CardList: React.FC = () => {
           <Grid container spacing={3} style={{ marginTop: '20px' }}>
             {cards.map((card) => (
               <Grid item xs={12} sm={6} md={4} key={card.id}>
-                <Link to={`/cards/${card.id}`}>
+                <Link to={`/cards/${card.id}`} style={{ textDecoration: 'none' }}>
                   <Card>
                     <CardMedia
-                      sx={{ height: 120 }}
+                      sx={{ height: 120, textDecorationLine: 'none'}}
                       image={card.src}
                       title={card.name}
                     />
                     <CardContent>
-                      <Typography variant="h5">
+                      <Typography color="primary" variant="h5">
                         {card.name}
                       </Typography>
                       <Typography>Type: {card.type}</Typography>
